@@ -4,33 +4,50 @@ import tornado.ioloop,tornado.web,\
 from tornado.options import options, define
 import logging as l
 from urls import urls
-import app.torndb as db
+import torndb as db
+
+define('mysql_database', default="test")
+define('mysql_host', default="localhost")
+define('mysql_user', default="0")
+define('mysql_password', default="0")
+
+define('debug', default=True)
+define('template_path', default="templates")
+define('static_path', default="assets")
+define('static_url_prefix', default="/assets/")
+define('cookie_secret', default="s")
+define('cookie_domain', default="localhost")
+define('login_url', default="/login")
+define('xsrf_cookies', default=True)
+define('port', default=8080)
 
 class Application(tornado.web.Application):
     def __init__(self):
         settings = {
-            'template_path': os.path.join(os.path.dirname(__file__), 'templates'),
-            'static_path': os.path.join(os.path.dirname(__file__), 'assets'),
-            'static_url_prefix': '/assets/',
-            'cookie_secret': 'f',
-            'cookie_domain': 'localhost',
-            'login_url': '/login',
-            'debug': True,
-            'xsrf_cookies': True,
+            'template_path': os.path.join(os.path.dirname(__file__), options.template_path),
+            'static_path': os.path.join(os.path.dirname(__file__), options.static_path),
+            'static_url_prefix': options.static_url_prefix,
+            'cookie_secret': options.cookie_secret,
+            'cookie_domain': options.cookie_domain,
+            'login_url': options.login_url,
+            'debug': options.debug,
+            'xsrf_cookies': options.xsrf_cookies,
         }
         super(Application, self).__init__(urls, **settings)
 
-        self.db = torndb.Connection("localhost", "blog")
+        self.db = db.Connection(
+            host=options.mysql_host, database=options.mysql_database,
+            user=options.mysql_user, password=options.mysql_password)
 
 if __name__ == "__main__":
     # tornado.locale.load_translations(os.path.join(options.run_path, "locale"))
     tornado.options.parse_config_file('app/config.conf')
     tornado.options.parse_command_line()
     app = Application()
-    if True:
+    if options.debug:
         print('debug --------------------')
         server = tornado.httpserver.HTTPServer(app, xheaders=True)
-        server.listen(3000)
+        server.listen(options.port)
     else:
         print('run --------------------')
         sockets = tornado.netutil.bind_sockets(options.port)
