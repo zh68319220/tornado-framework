@@ -3,6 +3,4 @@ a simple rapid tornado framework
 
 TODO:
 
-1. mysqldb plugin
-
-2. python version change to 2.7
+1. a simple and useful package for torndb.
