@@ -1,10 +1,16 @@
-import tornado.ioloop,tornado.web,\
-    tornado.httpserver,tornado.process,\
-    tornado.netutil,tornado.locale, os
-from tornado.options import options, define
+#!/usr/bin/env python
+# encoding: utf-8
 import logging as l
-from urls import urls
-import torndb as db
+
+import os
+import tornado.httpserver
+import tornado.ioloop
+import tornado.locale
+import tornado.netutil
+import tornado.process
+import tornado.web
+from tornado.options import options, define
+from app.utils import db
 
 define('mysql_database', default="test")
 define('mysql_host', default="localhost")
@@ -33,11 +39,43 @@ class Application(tornado.web.Application):
             'debug': options.debug,
             'xsrf_cookies': options.xsrf_cookies,
         }
-        super(Application, self).__init__(urls, **settings)
+        super(Application, self).__init__(self.build_urls, **settings)
 
-        self.db = db.Connection(
+        self.db = db.DB(
             host=options.mysql_host, database=options.mysql_database,
             user=options.mysql_user, password=options.mysql_password)
+
+    @property
+    def build_urls(self):
+        '''
+        自动装载各module 的网址
+        '''
+        handler_list = []
+        files = os.listdir('./app/modules')
+        files.sort()
+        for f in files:
+            if f.startswith("_"): # Filter __init__.py
+                continue
+            if f[-3:] != '.py': # Filter .pyc .DS_Store .svn ...
+                continue
+            module_name = f.split(".")[0]
+            url_module = __import__('app.modules.%s' % module_name, globals(), locals(), ['urls', 'url_prefix'], 0)
+            try:
+                url_list = url_module.__dict__['urls']
+                try:
+                    prefix = url_module.__dict__['url_prefix']
+                except KeyError:
+                    prefix = '/' + module_name
+                for handler in url_list:
+                    new_handler = (prefix + handler[0], handler[1])
+                    handler_list.append(new_handler)
+                del(url_module)
+            except KeyError:
+                l.error('[%s] need "urls" list' % module_name)
+        from app.modules import main
+        handler_list.append((r'.*', main.NotFoundHandler))
+        del(main)
+        return handler_list
 
 if __name__ == "__main__":
     # tornado.locale.load_translations(os.path.join(options.run_path, "locale"))
