@@ -11,7 +11,7 @@ class MainHandler(main):
     '''
     def get(self):
         users = self.db.user().data
-        self.write({'users':users})
+        self.write({'data':users})
 
 class ParticularHandler(main):
     '''
