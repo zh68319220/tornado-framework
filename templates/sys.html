@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block sys %}
-    <div class="main">
+    <div class="main clearfix">
         <div class="menu col-lg-2">
             <ul class="nav nav-pills nav-stacked nav-pills-stacked-example">
                 {% if hl == 'new-object' %}
-                  <li role="presentation" class="active"><a href="/">新建专题</a></li>
+                  <li role="presentation" class="active"><a href="/obj/new">新建专题</a></li>
                 {% else %}
-                  <li role="presentation"><a href="/">新建专题</a></li>
+                  <li role="presentation"><a href="/obj/new">新建专题</a></li>
                 {% end %}
                 {% if hl == 'list-object' %}
-                  <li role="presentation" class="active"><a href="/objlist">专题列表</a></li>
+                  <li role="presentation" class="active"><a href="/obj">专题列表</a></li>
                 {% else %}
-                  <li role="presentation"><a href="/objlist">专题列表</a></li>
+                  <li role="presentation"><a href="/obj">专题列表</a></li>
                 {% end %}
                 {% if hl == 'list-cate' %}
                   <li role="presentation" class="active"><a href="/cate">分类管理</a></li>
@@ -20,9 +20,9 @@
                   <li role="presentation"><a href="/cate">分类管理</a></li>
                 {% end %}
                 {% if hl == 'edit-cate' %}
-                  <li role="presentation" class="active"><a href="/editcate">添加分类</a></li>
+                  <li role="presentation" class="active"><a href="/cate/add">添加分类</a></li>
                 {% else %}
-                  <li role="presentation"><a href="/editcate">添加分类</a></li>
+                  <li role="presentation"><a href="/cate/add">添加分类</a></li>
                 {% end %}
             </ul>
         </div>

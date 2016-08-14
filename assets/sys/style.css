@@ -1,3 +1,5 @@
+.clearfix{overflow:hidden;_zoom:1;}
+
 html, body{
     min-height: 100%;
 }
